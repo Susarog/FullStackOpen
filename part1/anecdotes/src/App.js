@@ -12,29 +12,50 @@ const App = () => {
   ]
    
   const [selected, setSelected] = useState(0)
-  const [votes, setVote] = useState({0: 0, 1: 0, 2:0, 3:0, 4:0, 5:0, 6:0})
+  const [votes, setVote] = useState([0,0,0,0,0,0,0])
 
   const rng = () => {
     return setSelected(Math.floor(Math.random() * anecdotes.length));
   }
   const voteAnecdote = () => {
-    const copy = {...votes}
+    const copy = [...votes]
     copy[selected] += 1
     return setVote(copy)
   }
 
+  function indexOfMax(arr) {
+    let max = arr[0];
+    let maxIndex = 0;
+    for(let i = 1; i < arr.length; i++) {
+      if(arr[i] > max) {
+        maxIndex = i;
+        max = arr[i];
+      }
+    }
+    return maxIndex;
+  }
+
+  const maxIndex = indexOfMax(votes);
   return (
     <>
-    <div>
-      {anecdotes[selected]}
-    </div>
-    <div>
-      has {votes[selected]} votes
-    </div>
-    <button onClick={voteAnecdote}>vote</button> 
-    <button onClick={rng}>
-    next anecdote
-    </button>
+      <h1>Anecdotes of the day</h1>
+      <div>
+        {anecdotes[selected]}
+      </div>
+      <div>
+        has {votes[selected]} votes
+      </div>
+      <button onClick={voteAnecdote}>vote</button> 
+      <button onClick={rng}>
+      next anecdote
+      </button>
+      <h1>Anecdote with most votes</h1>
+      <div>
+        {anecdotes[maxIndex]}
+      </div>
+      <div>
+        has {votes[maxIndex]} votes
+      </div>
     </>
   )
 }
