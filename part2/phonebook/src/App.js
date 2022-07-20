@@ -1,5 +1,7 @@
 import { useState } from "react";
-
+import Persons from "./components/Persons";
+import PersonForm from "./components/PersonForm";
+import Filter from "./components/Filter";
 const App = () => {
   const [persons, setPersons] = useState([
     { name: "Arto Hellas", number: "040-123456", id: 1 },
@@ -14,7 +16,6 @@ const App = () => {
   const FilterInput = (event) => {
     setFilterValue(event.target.value);
   };
-
   const newInput = (event) => {
     setNewName(event.target.value);
   };
@@ -23,9 +24,10 @@ const App = () => {
   };
   const submit = (event) => {
     event.preventDefault();
-    if (persons.map((person) => person.name).includes(newName)) {
+    if (persons.map((person) => person.name).includes(newName) ||persons.map((person) => person.number).includes(newName)) {
       alert(`${newName} is already added to phonebook`);
       setNewName("");
+      setNewNumber("");
       return;
     }
     setPersons(
@@ -36,36 +38,17 @@ const App = () => {
       })
     );
     setNewName("");
+    setNewNumber("");
   };
+
   return (
     <div>
       <h2>Phonebook</h2>
-
-      <div>
-        filter shown with <input value={filterValue} onChange={FilterInput} />
-      </div>
+      <Filter filterValue={filterValue} FilterInput={FilterInput}/>
       <h2>Add a new</h2>
-      <form onSubmit={submit}>
-        <div>
-          name: <input value={newName} onChange={newInput} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={newInputNum} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <PersonForm newName={newName} newNumber={newNumber} newInput={newInput} newInputNum={newInputNum} submit={submit}/>
       <h2>Numbers</h2>
-      <div>
-        {persons
-          .filter((person) => person.name.toLowerCase().includes(filterValue.toLowerCase()))
-          .map((person) => (
-            <div key={person.id}>
-              {person.name} {person.number}
-            </div>
-          ))}
-      </div>
+      <Persons persons={persons} filterValue={filterValue}/>
     </div>
   );
 };
