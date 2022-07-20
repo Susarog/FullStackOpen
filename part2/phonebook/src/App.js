@@ -8,9 +8,18 @@ const App = () => {
     setNewName(event.target.value);
   };
 
+
+  
+
   const submit = (event) => {
     event.preventDefault();
-    setPersons(persons.concat({name: newName, id: persons.length + 1}));
+    if(persons.map(person => person.name).includes(newName)){
+      alert(`${newName} is already added to phonebook`);
+      setNewName('');
+      return;
+    }
+    setPersons(persons.concat({name: newName, id: persons.length}));
+    setNewName('');
   }
   return (
     <div>
