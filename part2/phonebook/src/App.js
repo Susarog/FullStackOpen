@@ -1,17 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Persons from "./components/Persons";
 import PersonForm from "./components/PersonForm";
 import Filter from "./components/Filter";
+import axios from 'axios'
+
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filterValue, setFilterValue] = useState("");
+
+  useEffect(() => {
+    axios.get("http://localhost:3001/persons").then((response)=>{
+      console.log(response);
+      setPersons(response.data);
+    })
+  },[])
+
 
   const FilterInput = (event) => {
     setFilterValue(event.target.value);
@@ -24,7 +29,10 @@ const App = () => {
   };
   const submit = (event) => {
     event.preventDefault();
-    if (persons.map((person) => person.name).includes(newName) ||persons.map((person) => person.number).includes(newName)) {
+    if (
+      persons.map((person) => person.name).includes(newName) ||
+      persons.map((person) => person.number).includes(newName)
+    ) {
       alert(`${newName} is already added to phonebook`);
       setNewName("");
       setNewNumber("");
@@ -44,11 +52,17 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter filterValue={filterValue} FilterInput={FilterInput}/>
+      <Filter filterValue={filterValue} FilterInput={FilterInput} />
       <h2>Add a new</h2>
-      <PersonForm newName={newName} newNumber={newNumber} newInput={newInput} newInputNum={newInputNum} submit={submit}/>
+      <PersonForm
+        newName={newName}
+        newNumber={newNumber}
+        newInput={newInput}
+        newInputNum={newInputNum}
+        submit={submit}
+      />
       <h2>Numbers</h2>
-      <Persons persons={persons} filterValue={filterValue}/>
+      <Persons persons={persons} filterValue={filterValue} />
     </div>
   );
 };
