@@ -1,5 +1,19 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+const api_key = process.env.REACT_APP_API_KEY;
+
+const Weather = ({ country, weather }) => {
+  if (Object.keys(country).length === 0 || Object.keys(weather).length === 0) {
+    return;
+  }
+  return (
+    <div>
+      <h2>Weather in {country.name.common}</h2>
+      <div>temperature {Math.round((weather.main.feels_like- 273.15) * 100) / 100 } Celcius</div>
+      <div>wind {weather.wind.speed} m/s</div>
+    </div>
+  );
+};
 
 const ShowInfo = ({ country }) => {
   if (country.show) {
@@ -19,21 +33,17 @@ const ShowInfo = ({ country }) => {
         </ul>
         <img src={country.flags.png} alt={`${country.name.common} Flag`} />
       </div>
-    )
+    );
   }
   return;
 };
 
-const Button = ({onClick, country}) => {
-  if(country.show){
-    return (
-      <button onClick={onClick}>unshow</button>
-    )
+const Button = ({ onClick, country }) => {
+  if (country.show) {
+    return <button onClick={onClick}>unshow</button>;
   }
-  return (
-    <button onClick={onClick}>show</button>
-  )
-}
+  return <button onClick={onClick}>show</button>;
+};
 
 const Countries = ({ filteredCountries, input, setFilteredCountries }) => {
   if (input.length === 0) {
@@ -41,12 +51,14 @@ const Countries = ({ filteredCountries, input, setFilteredCountries }) => {
   }
 
   const button = (country) => {
-    setFilteredCountries(filteredCountries.map(obj => {
-      if(obj === country) {
-        obj.show = !obj.show;
-      }
-      return obj;
-    }))
+    setFilteredCountries(
+      filteredCountries.map((obj) => {
+        if (obj === country) {
+          return { ...obj, show: !country.show };
+        }
+        return obj;
+      })
+    );
   };
 
   if (filteredCountries.length > 10) {
@@ -57,7 +69,7 @@ const Countries = ({ filteredCountries, input, setFilteredCountries }) => {
         {filteredCountries.map((country) => (
           <div key={country.area}>
             {country.name.common}
-            <Button onClick={button.bind(this, country)} country={country}/>
+            <Button onClick={button.bind(this, country)} country={country} />
             <ShowInfo country={country} />
           </div>
         ))}
@@ -89,23 +101,43 @@ const App = () => {
   const [countries, setCountries] = useState([]);
   const [input, setNewInput] = useState("");
   const [filteredCountries, setFilteredCountries] = useState([]);
+  const [country, setCurrentCountry] = useState({});
+  const [weather, setWeather] = useState({});
   useEffect(() => {
     axios.get("https://restcountries.com/v3.1/all").then((response) => {
       setCountries(response.data);
     });
   }, []);
 
+  useEffect(() => {
+    console.log("hi");
+    if (Object.keys(country).length === 0) {
+      return;
+    }
+    const lat = country.capitalInfo.latlng[0];
+    const lon = country.capitalInfo.latlng[1];
+    axios
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${api_key}`
+      )
+      .then((response) => {
+        setWeather(response.data);
+      });
+  }, [country]);
+
   const filterInput = (event) => {
     setNewInput(event.target.value);
-    setFilteredCountries(
-      countries
-        .filter((obj) =>
-          obj.name.common
-            .toLowerCase()
-            .includes(event.target.value.toLowerCase())
-        )
-        .map((obj) => ({ ...obj, showCountry: false }))
-    );
+    const tempCountries = countries
+      .filter((obj) =>
+        obj.name.common.toLowerCase().includes(event.target.value.toLowerCase())
+      )
+      .map((obj) => ({ ...obj, showCountry: false }));
+    setFilteredCountries(tempCountries);
+    if(tempCountries.length === 1) {
+      setCurrentCountry(tempCountries[0])
+    } else {
+      setCurrentCountry({});
+    }
   };
 
   return (
@@ -117,7 +149,9 @@ const App = () => {
         filteredCountries={filteredCountries}
         input={input}
         setFilteredCountries={setFilteredCountries}
+        setCurrentCountry={setCurrentCountry}
       />
+      <Weather country={country} weather={weather} />
     </div>
   );
 };
