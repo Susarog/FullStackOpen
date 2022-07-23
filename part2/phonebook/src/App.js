@@ -27,24 +27,47 @@ const App = () => {
   };
   const submit = (event) => {
     event.preventDefault();
-    if (
-      persons.map((person) => person.name).includes(newName) ||
-      persons.map((person) => person.number).includes(newName)
-    ) {
+    const dudeInBook = persons.find((person) => person.name.includes(newName));
+    if (dudeInBook && dudeInBook.number.includes(newNumber)) {
       alert(`${newName} is already added to phonebook`);
       setNewName("");
       setNewNumber("");
+      setFilterValue("");
       return;
+    } else if (dudeInBook && !dudeInBook.number.includes(newNumber)) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const tempObj = { ...dudeInBook, number: newNumber };
+        phoneBookService
+          .updatePerson(dudeInBook.id, tempObj)
+          .then((response) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== tempObj.id ? person : response.data
+              )
+            )
+            setNewName("");
+            setNewNumber("");
+            setFilterValue("");
+          });
+        return;
+      } else {
+        return;
+      }
     }
     const newPerson = {
       name: newName,
       number: newNumber,
-      id: persons.length === 0 ? 1 : persons[persons.length-1].id + 1,
+      id: persons.length === 0 ? 1 : persons[persons.length - 1].id + 1,
     };
     phoneBookService.createPerson(newPerson).then((response) => {
       setPersons(persons.concat(response.data));
       setNewName("");
       setNewNumber("");
+      setFilterValue("");
     });
   };
 

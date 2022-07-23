@@ -8,7 +8,6 @@ const Persons = ({
   const deletePhonePerson = (person) => {
     const personID = person.id;
     const personName = person.name;
-    let index = 1;
     if (window.confirm(`Delete ${personName}?`)) {
       deletePerson(personID)
         .then(setPersons(persons.filter((person) => person.id !== personID)))
