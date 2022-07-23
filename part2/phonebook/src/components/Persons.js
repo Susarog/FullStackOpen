@@ -3,7 +3,8 @@ const Persons = ({
   filterValue,
   deletePerson,
   setPersons,
-  updatePerson,
+  setMessage,
+  setIsError,
 }) => {
   const deletePhonePerson = (person) => {
     const personID = person.id;
@@ -11,7 +12,12 @@ const Persons = ({
     if (window.confirm(`Delete ${personName}?`)) {
       deletePerson(personID)
         .then(setPersons(persons.filter((person) => person.id !== personID)))
-        .catch((error) => alert(`${personName} does not exist`));
+        .catch((err) => {
+          setPersons(persons.filter(person => person.id !== personID));
+          setMessage(`'${personName}' was already removed from the server`);
+          setTimeout(() => setMessage(null), 5000);
+          setIsError(true);
+        });
     }
     return;
   };

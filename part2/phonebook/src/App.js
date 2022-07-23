@@ -3,13 +3,15 @@ import Persons from "./components/Persons";
 import PersonForm from "./components/PersonForm";
 import Filter from "./components/Filter";
 import phoneBookService from "./services/phonebook";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filterValue, setFilterValue] = useState("");
-
+  const [message, setMessage] = useState(null);
+  const [isError, setIsError] = useState(false);
   useEffect(() => {
     phoneBookService.getPeople().then((response) => {
       setPersons(response.data);
@@ -48,11 +50,13 @@ const App = () => {
               persons.map((person) =>
                 person.id !== tempObj.id ? person : response.data
               )
-            )
+            );
             setNewName("");
             setNewNumber("");
             setFilterValue("");
           });
+        return;
+      } else {
         return;
       }
     }
@@ -61,17 +65,23 @@ const App = () => {
       number: newNumber,
       id: persons.length === 0 ? 1 : persons[persons.length - 1].id + 1,
     };
-    phoneBookService.createPerson(newPerson).then((response) => {
-      setPersons(persons.concat(response.data));
-      setNewName("");
-      setNewNumber("");
-      setFilterValue("");
-    });
+    phoneBookService
+      .createPerson(newPerson)
+      .then((response) => {
+        setPersons(persons.concat(response.data));
+        setMessage(`Added ${response.data.name}`);
+        setTimeout(() => setMessage(null), 5000);
+        setIsError(false);
+        setNewName("");
+        setNewNumber("");
+        setFilterValue("");
+      })
   };
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <Notification message={message} isError={isError} />
       <Filter filterValue={filterValue} FilterInput={FilterInput} />
       <h2>Add a new</h2>
       <PersonForm
@@ -88,6 +98,8 @@ const App = () => {
         deletePerson={phoneBookService.deletePerson}
         updatePerson={phoneBookService.updatePerson}
         setPersons={setPersons}
+        setIsError={setIsError}
+        setMessage={setMessage}
       />
     </div>
   );
