@@ -54,8 +54,6 @@ const App = () => {
             setFilterValue("");
           });
         return;
-      } else {
-        return;
       }
     }
     const newPerson = {
