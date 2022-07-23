@@ -7,12 +7,15 @@ const createPerson = (obj) => {
 }
 
 const getPeople = () => {
-    return axios(baseURL);
+    return axios.get(baseURL);
 }
 
+const updatePerson = (id,obj) => {
+    return axios.put(`${baseURL}/${id}`, obj)
+}
 
 const deletePerson = (id) => {
     return axios.delete(`${baseURL}/${id}`);
 }
 
-export default {createPerson,getPeople , deletePerson};
+export default {createPerson, getPeople , deletePerson , updatePerson};
