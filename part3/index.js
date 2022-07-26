@@ -1,5 +1,8 @@
+const { response } = require("express");
 const express = require("express");
 const app = express();
+
+app.use(express.json())
 
 let phoneBookData = [
   {
@@ -51,6 +54,23 @@ app.delete("/api/persons/:id", (req, res) => {
   phoneBookData = phoneBookData.filter((person) => person.id !== id);
   res.status(204).end();
 });
+
+
+app.post("/api/persons", (req, res) => {
+  const person = req.body;
+  if (!person.name || !person.number) {
+    return res.status(400).json({ 
+      error: 'missing name or number' 
+    })
+  }
+
+  let randID = Math.floor(Math.random()* 10000)
+  while(phoneBookData.map(person => person.id).find(person => person.id === randID)){
+    randID = Math.floor(Math.random()* 10000)
+  }
+  person.id = randID;
+  res.json(person);
+})
 
 const PORT = 3001;
 
