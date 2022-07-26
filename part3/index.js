@@ -2,7 +2,7 @@ const { response } = require("express");
 const express = require("express");
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
 let phoneBookData = [
   {
@@ -55,22 +55,41 @@ app.delete("/api/persons/:id", (req, res) => {
   res.status(204).end();
 });
 
-
 app.post("/api/persons", (req, res) => {
   const person = req.body;
+  const isSamePerson = phoneBookData
+    .map((person) => person.name)
+    .find((name) => {
+      console.log(name);
+      return name === person.name;
+    });
   if (!person.name || !person.number) {
-    return res.status(400).json({ 
-      error: 'missing name or number' 
-    })
+    return res.status(400).json({
+      error: "missing name or number",
+    });
+  } else if (isSamePerson) {
+    return res.status(400).json({
+      error: "name must be unique",
+    });
   }
 
-  let randID = Math.floor(Math.random()* 10000)
-  while(phoneBookData.map(person => person.id).find(person => person.id === randID)){
-    randID = Math.floor(Math.random()* 10000)
+  let randID = Math.floor(Math.random() * 10000);
+  while (
+    phoneBookData
+      .map((person) => person.id)
+      .find((person) => person.id === randID)
+  ) {
+    randID = Math.floor(Math.random() * 10000);
   }
-  person.id = randID;
-  res.json(person);
-})
+
+  const newPerson = {
+    name: person.name,
+    number: person.number,
+    id: randID
+  }
+  phoneBookData = phoneBookData.concat(newPerson);
+  res.json(newPerson);
+});
 
 const PORT = 3001;
 
