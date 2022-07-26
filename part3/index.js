@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 
 let phoneBookData = [
@@ -24,11 +24,17 @@ let phoneBookData = [
   },
 ];
 
-
-app.get('/api/persons',(req, res) => {
-    res.json(phoneBookData);
+app.get("/api/persons", (req, res) => {
+  res.json(phoneBookData);
 });
 
+app.get("/info", (req, res) => {
+  res.send(
+    `<p>Phonebook has info for ${
+      phoneBookData.length
+    } people</p><p>${new Date()}</p>`
+  );
+});
 const PORT = 3001;
 
 app.listen(PORT, () => console.log(`Running port ${PORT}`));
