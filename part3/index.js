@@ -31,4 +31,4 @@ app.get('/api/persons',(req, res) => {
 
 const PORT = 3001;
 
-app.listen(PORT, ()=> console.log(`Running port ${PORT}`));
+app.listen(PORT, () => console.log(`Running port ${PORT}`));
