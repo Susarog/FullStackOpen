@@ -28,3 +28,7 @@ let phoneBookData = [
 app.get('/api/persons',(req, res) => {
     res.json(phoneBookData);
 });
+
+const PORT = 3001;
+
+app.listen(PORT, ()=> console.log(`Running port ${PORT}`));
