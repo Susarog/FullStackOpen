@@ -1,8 +1,17 @@
-const { response } = require("express");
 const express = require("express");
 const app = express();
+const morgan = require("morgan");
+
+morgan.token("obj", function (req, res) {
+  if (req.body.name || req.body.number) {
+    return JSON.stringify(req.body);
+  }
+  return '';
+});
 
 app.use(express.json());
+
+app.use(morgan(`:method :url :status :res[content-length] - :response-time ms :obj`));
 
 let phoneBookData = [
   {
@@ -60,7 +69,6 @@ app.post("/api/persons", (req, res) => {
   const isSamePerson = phoneBookData
     .map((person) => person.name)
     .find((name) => {
-      console.log(name);
       return name === person.name;
     });
   if (!person.name || !person.number) {
@@ -85,8 +93,9 @@ app.post("/api/persons", (req, res) => {
   const newPerson = {
     name: person.name,
     number: person.number,
-    id: randID
-  }
+    id: randID,
+  };
+
   phoneBookData = phoneBookData.concat(newPerson);
   res.json(newPerson);
 });
