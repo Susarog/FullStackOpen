@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const cors = require("cors");
 
 morgan.token("obj", function (req, res) {
   if (req.body.name || req.body.number) {
@@ -10,8 +11,8 @@ morgan.token("obj", function (req, res) {
 });
 
 app.use(express.json());
-
 app.use(morgan(`:method :url :status :res[content-length] - :response-time ms :obj`));
+app.use(cors());
 
 let phoneBookData = [
   {
