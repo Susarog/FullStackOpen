@@ -144,17 +144,10 @@ app.put("/api/persons/:id", (req, res, next) => {
 
   Contact.findByIdAndUpdate(req.params.id, person, { new: true })
     .then((updatedPerson) => {
-
       res.json(updatedPerson);
     })
     .catch((err) => next(err));
 });
-
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
-};
-
-app.use(unknownEndpoint);
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
@@ -167,6 +160,14 @@ const errorHandler = (error, request, response, next) => {
 };
 
 app.use(errorHandler);
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+
+
 
 const PORT = process.env.PORT;
 
