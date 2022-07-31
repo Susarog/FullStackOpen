@@ -44,17 +44,21 @@ let phoneBookData = [
 ];
 
 app.get("/api/persons", (req, res) => {
-  Contact.find({}).then((person) => {
-    res.json(person);
-  }).catch((err)=>{
-    res.status(500).end();
-  })
+  Contact.find({})
+    .then((person) => {
+      res.json(person);
+    })
+    .catch((err) => {
+      res.status(500).end();
+    });
 });
 
 app.get("/info", async (req, res) => {
-  const length = await Contact.find({}).then((persons) => {
-    return persons.length;
-  }).catch(err => res.status(500).end())
+  const length = await Contact.find({})
+    .then((persons) => {
+      return persons.length;
+    })
+    .catch((err) => res.status(500).end());
   if (length < 2) {
     res.send(
       `<p>Phonebook has info for ${length} person</p><p>${new Date()}</p>`
@@ -67,30 +71,36 @@ app.get("/info", async (req, res) => {
 });
 
 app.get("/api/persons/:id", (req, res, next) => {
-  Contact.findById(req.params.id).then((person) => {
-    if(person){
-      res.json(person);
-    } else {
-      res.status(404).end();
-    }
-  }).catch((err)=>next(err))
+  Contact.findById(req.params.id)
+    .then((person) => {
+      if (person) {
+        res.json(person);
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch((err) => next(err));
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
-  Contact.findByIdAndRemove(req.params.id).then((result) => {
-    res.status(204).end();
-  }).catch((err)=> next(err))
+  Contact.findByIdAndRemove(req.params.id)
+    .then((result) => {
+      res.status(204).end();
+    })
+    .catch((err) => next(err));
 });
 
 app.post("/api/persons", async (req, res) => {
   const person = req.body;
-  const isSamePerson = await Contact.find({}).then((person) => {
-    return person
-      .map((person) => person.name)
-      .find((name) => {
-        return name === person.name;
-      });
-  }).catch((err)=> res.status(500).end())
+  const isSamePerson = await Contact.find({})
+    .then((person) => {
+      return person
+        .map((person) => person.name)
+        .find((name) => {
+          return name === person.name;
+        });
+    })
+    .catch((err) => res.status(500).end());
   if (!person.name || !person.number) {
     return res.status(400).json({
       error: "missing name or number",
@@ -123,6 +133,21 @@ app.post("/api/persons", async (req, res) => {
     .catch((err) => {
       res.status(500).end();
     });
+});
+
+app.put("/api/persons/:id", (req, res, next) => {
+  const body = req.body;
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Contact.findByIdAndUpdate(req.params.id, person, { new: true })
+    .then((updatedPerson) => {
+
+      res.json(updatedPerson);
+    })
+    .catch((err) => next(err));
 });
 
 const unknownEndpoint = (request, response) => {
