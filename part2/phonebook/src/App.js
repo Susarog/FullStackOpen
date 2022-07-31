@@ -29,8 +29,8 @@ const App = () => {
   };
   const submit = (event) => {
     event.preventDefault();
-    const dudeInBook = persons.find((person) => person.name.includes(newName));
-    if (dudeInBook && dudeInBook.number.includes(newNumber)) {
+    const dudeInBook = persons.find((person) => person.name === newName);
+    if (dudeInBook && dudeInBook.number === newNumber) {
       alert(`${newName} is already added to phonebook`);
       setNewName("");
       setNewNumber("");
@@ -51,10 +51,20 @@ const App = () => {
                 person.id !== tempObj.id ? person : response.data
               )
             );
+            setMessage(`Updated ${response.data.name}`);
+            setTimeout(() => setMessage(null), 5000);
+            setIsError(false);
             setNewName("");
             setNewNumber("");
             setFilterValue("");
-          });
+          }).catch(error => {
+            setMessage(error.response.data.error);
+            setTimeout(() => setMessage(null), 5000);
+            setIsError(true);
+            setNewName("");
+            setNewNumber("");
+            setFilterValue("");
+          })
         return;
       } else {
         return;
@@ -72,6 +82,13 @@ const App = () => {
         setMessage(`Added ${response.data.name}`);
         setTimeout(() => setMessage(null), 5000);
         setIsError(false);
+        setNewName("");
+        setNewNumber("");
+        setFilterValue("");
+      }).catch(error => {
+        setMessage(error.response.data.error);
+        setTimeout(() => setMessage(null), 5000);
+        setIsError(true);
         setNewName("");
         setNewNumber("");
         setFilterValue("");
