@@ -90,7 +90,7 @@ app.delete("/api/persons/:id", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-app.post("/api/persons", async (req, res) => {
+app.post("/api/persons", async (req, res,next) => {
   const person = req.body;
   const isSamePerson = await Contact.find({})
     .then((person) => {
@@ -130,9 +130,7 @@ app.post("/api/persons", async (req, res) => {
       console.log("saved person");
       res.json(newPerson);
     })
-    .catch((err) => {
-      res.status(500).end();
-    });
+    .catch((err) => next(err));
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
@@ -142,7 +140,11 @@ app.put("/api/persons/:id", (req, res, next) => {
     number: body.number,
   };
 
-  Contact.findByIdAndUpdate(req.params.id, person, { new: true })
+  Contact.findByIdAndUpdate(req.params.id, person, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
     .then((updatedPerson) => {
       res.json(updatedPerson);
     })
@@ -154,6 +156,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).send({ error: error.message });
   }
 
   next(error);
@@ -166,9 +170,6 @@ const unknownEndpoint = (request, response) => {
 };
 
 app.use(unknownEndpoint);
-
-
-
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => console.log(`Running port ${PORT}`));
