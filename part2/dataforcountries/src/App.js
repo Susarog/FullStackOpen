@@ -6,12 +6,17 @@ const Weather = ({ country, weather }) => {
   if (Object.keys(country).length === 0 || Object.keys(weather).length === 0) {
     return;
   }
-  console.log(weather);
   return (
     <div>
       <h2>Weather in {country.name.common}</h2>
-      <div>temperature {Math.round((weather.main.feels_like- 273.15) * 100) / 100 } Celcius</div>
-      <img src= {`http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`} alt={weather.weather.description}></img>
+      <div>
+        temperature {Math.round((weather.main.feels_like - 273.15) * 100) / 100}{" "}
+        Celsius
+      </div>
+      <img
+        src={`http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
+        alt={weather.weather.description}
+      ></img>
       <div>wind {weather.wind.speed} m/s</div>
     </div>
   );
@@ -112,7 +117,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    console.log("hi");
     if (Object.keys(country).length === 0) {
       return;
     }
@@ -135,8 +139,8 @@ const App = () => {
       )
       .map((obj) => ({ ...obj, showCountry: false }));
     setFilteredCountries(tempCountries);
-    if(tempCountries.length === 1) {
-      setCurrentCountry(tempCountries[0])
+    if (tempCountries.length === 1) {
+      setCurrentCountry(tempCountries[0]);
     } else {
       setCurrentCountry({});
     }
@@ -151,7 +155,6 @@ const App = () => {
         filteredCountries={filteredCountries}
         input={input}
         setFilteredCountries={setFilteredCountries}
-        setCurrentCountry={setCurrentCountry}
       />
       <Weather country={country} weather={weather} />
     </div>

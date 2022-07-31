@@ -13,7 +13,7 @@ const Persons = ({
       deletePerson(personID)
         .then(setPersons(persons.filter((person) => person.id !== personID)))
         .catch((err) => {
-          setPersons(persons.filter(person => person.id !== personID));
+          setPersons(persons.filter((person) => person.id !== personID));
           setMessage(`'${personName}' was already removed from the server`);
           setTimeout(() => setMessage(null), 5000);
           setIsError(true);
@@ -25,9 +25,9 @@ const Persons = ({
   return (
     <div>
       {persons
-        .filter((person) =>
-          person.name.toLowerCase().includes(filterValue.toLowerCase())
-        )
+        .filter((person) => {
+          return person.name.toLowerCase().includes(filterValue.toLowerCase());
+        })
         .map((person) => (
           <div key={person.id}>
             {person.name} {person.number}{" "}
