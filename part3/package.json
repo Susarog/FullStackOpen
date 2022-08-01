@@ -7,7 +7,8 @@
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "build:ui": "rm -rf build && cd ../part2/phonebook/ && npm run build && cp -r build ../../part3"
+    "build:ui": "rm -rf build && cd ../part2/phonebook/ && npm run build && cp -r build ../../part3",
+    "lint": "eslint ."
   },
   "author": "Ryan Hang",
   "license": "ISC",
@@ -19,6 +20,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "eslint": "^8.20.0",
     "nodemon": "^2.0.19"
   }
 }
