@@ -26,8 +26,4 @@ app.use('/api/blogs',blogsRouter)
 app.use(middleware.errorHandler)
 app.use(middleware.unknownEndpoint)
 
-const PORT = config.PORT
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`)
-})
 module.exports = app
