@@ -93,6 +93,21 @@ describe('deleting a blog', () => {
   })
 })
 
+describe('updating a blog post', () => {
+  test('will return updated blog', async () => {
+    const initialBlogArr = await helper.get()
+    const initialBlog = initialBlogArr[0]
+    const updatedBlog = { ...initialBlog, likes: 123 }
+    await api
+      .put(`/api/blogs/${initialBlog.id}`)
+      .send(updatedBlog)
+    const currBlogArr = await helper.get()
+    expect(currBlogArr[0]).toEqual(updatedBlog)
+
+  })
+})
+
+
 afterAll(() => {
   mongoose.connection.close()
 })
