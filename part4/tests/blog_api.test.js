@@ -38,6 +38,13 @@ test('blog can be added', async () => {
   expect(arrContent).toContain('Go To Statement Considered Harmful')
 })
 
+test('blogs unique id exist', async () => {
+  const response = await helper.get()
+  for (let element in response.body) {
+    expect(element.id).toBeDefined()
+  }
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
