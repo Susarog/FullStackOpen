@@ -62,6 +62,18 @@ test('missing likes property', async() => {
   expect(arrBlogs[arrBlogs.length - 1].likes).toBe(0)
 })
 
+test('missing title and url', async () => {
+  const newBlog = {
+    author: 'Edsger W. Dijkstra',
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+  const arrBlogs = await helper.get()
+  expect(arrBlogs.length).toBe(helper.initialBlogs.length)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
