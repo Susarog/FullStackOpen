@@ -45,6 +45,23 @@ test('blogs unique id exist', async () => {
   }
 })
 
+test('missing likes property', async() => {
+  const newBlog = {
+    title: 'Go To Statement Considered Harmful',
+    author: 'Edsger W. Dijkstra',
+    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const arrBlogs = await helper.get()
+  expect(arrBlogs[arrBlogs.length - 1].likes).toBe(0)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
