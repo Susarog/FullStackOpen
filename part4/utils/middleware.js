@@ -1,5 +1,5 @@
 const logger = require('./logger')
-
+const jwt = require('jsonwebtoken')
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
   logger.info('Path:  ', request.path)
@@ -41,9 +41,20 @@ const tokenExtractor = (request, response, next) => {
   next()
 }
 
+const userExtractor = (request, response, next) => {
+  /*
+  if(!request.token) {
+    response.status(400).send({ error: 'token is empty of null' })
+  }
+  request.user = jwt.verify(request.token, process.env.SECRET)
+  */
+  next()
+}
+
 module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
+  userExtractor
 }
