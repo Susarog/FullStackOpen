@@ -42,12 +42,10 @@ const tokenExtractor = (request, response, next) => {
 }
 
 const userExtractor = (request, response, next) => {
-  /*
   if(!request.token) {
     response.status(400).send({ error: 'token is empty of null' })
   }
   request.user = jwt.verify(request.token, process.env.SECRET)
-  */
   next()
 }
 
