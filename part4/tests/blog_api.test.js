@@ -30,6 +30,14 @@ describe('when there is initially some blogs saved', () => {
 })
 
 describe('adding new blog', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', passwordHash })
+    await user.save()
+  })
   test('blog can be added', async () => {
     const newBlog = {
       title: 'Go To Statement Considered Harmful',
@@ -37,15 +45,20 @@ describe('adding new blog', () => {
       url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
       likes: 5,
     }
-
+    const login = {
+      username: 'root',
+      password: 'sekret'
+    }
+    const tokenObj = await api.post('/api/login').send(login)
     await api
       .post('/api/blogs')
+      .set('Authorization', 'bearer ' + tokenObj.body.token)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
     const arrBlogs = await helper.get()
-    expect(arrBlogs.length).toBe(helper.initialBlogs.length + 1)
+    expect(arrBlogs.length).toBe(1)
     const arrContent = arrBlogs.map(elem => elem.title)
     expect(arrContent).toContain('Go To Statement Considered Harmful')
   })
@@ -58,8 +71,15 @@ describe('adding new blog', () => {
       url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     }
 
+    const login = {
+      username: 'root',
+      password: 'sekret'
+    }
+    const tokenObj = await api.post('/api/login').send(login)
+
     await api
       .post('/api/blogs')
+      .set('Authorization', 'bearer ' + tokenObj.body.token)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -72,24 +92,59 @@ describe('adding new blog', () => {
     const newBlog = {
       author: 'Edsger W. Dijkstra',
     }
+    const login = {
+      username: 'root',
+      password: 'sekret'
+    }
+    const tokenObj = await api.post('/api/login').send(login)
     await api
       .post('/api/blogs')
+      .set('Authorization', 'bearer ' + tokenObj.body.token)
       .send(newBlog)
       .expect(400)
     const arrBlogs = await helper.get()
-    expect(arrBlogs.length).toBe(helper.initialBlogs.length)
+    expect(arrBlogs.length).toBe(0)
   })
 })
 
 describe('deleting a blog', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('sekret', 10)
+    const user = new User({ username: 'root', passwordHash })
+    await user.save()
+  })
   test('will return status 204 if its id is valid', async () => {
+
+    const newBlog = {
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+      likes: 5,
+    }
+
+    const login = {
+      username: 'root',
+      password: 'sekret'
+    }
+    const tokenObj = await api.post('/api/login').send(login)
+
+    await api
+      .post('/api/blogs')
+      .set('Authorization', 'bearer ' + tokenObj.body.token)
+      .send(newBlog)
+
     const initialBlogArr = await helper.get()
     const deletedBlog = initialBlogArr[0]
+
     await api
       .delete(`/api/blogs/${deletedBlog.id}`)
+      .set('Authorization', 'bearer ' + tokenObj.body.token)
       .expect(204)
     const currBlogArr = await helper.get()
-    expect(currBlogArr.length).toBe(initialBlogArr.length-1)
+    expect(currBlogArr.length).toBe(initialBlogArr.length - 1)
     const title = currBlogArr.map(obj => obj.title)
     expect(title).not.toContain(deletedBlog.title)
   })
