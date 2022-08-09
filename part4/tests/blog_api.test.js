@@ -162,7 +162,87 @@ describe('when there is initially one user in db', () => {
   })
 })
 
+describe('when creating a new user to the web app', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+  })
+  test('it will succeed if there is more than 3 char for both username and password', async () => {
+    const usersAtStart = await helper.usersInDb()
 
+    const newUser= {
+      username: 'root',
+      name: 'Superuser',
+      password: 'salainen',
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+  })
+  test('it will fail if there is less than 3 char for both username and pass', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'ro',
+      name: 'Superuser',
+      password: 'sa',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    expect(result.body.error).toContain('User validation failed')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtStart).toEqual(usersAtEnd)
+  })
+  test('it will fail if there is less than 3 char for pass', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'roasdfasdf',
+      name: 'Superuser',
+      password: 'sa',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    expect(result.body.error).toContain('User validation failed: password')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtStart).toEqual(usersAtEnd)
+  })
+  test('it will fail if there is less than 3 char for user', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'ro',
+      name: 'Superuser',
+      password: 'saasdfasdf',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    expect(result.body.error).toContain('User validation failed: username')
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtStart).toEqual(usersAtEnd)
+  })
+})
 
 afterAll(() => {
   mongoose.connection.close()
