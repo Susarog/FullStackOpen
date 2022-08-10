@@ -1,3 +1,4 @@
+
 const loginForm = ({handleLogin,username,password, setUsername, setPassword}) => (
 <form onSubmit={handleLogin}>
       <div>
@@ -19,6 +20,6 @@ const loginForm = ({handleLogin,username,password, setUsername, setPassword}) =>
         />
       </div>
       <button type="submit">login</button>
-    </form>
+</form>
 )
 export default loginForm

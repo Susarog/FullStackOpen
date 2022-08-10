@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Form from './components/Form'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -12,7 +13,7 @@ const App = () => {
   const [author, setAuthor] = useState('')
   const [url, setUrl]= useState('')
   const [user, setUser] = useState(null)
-
+  const [message, setMessage] = useState(null)
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -40,7 +41,12 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      console.log(exception)
+      setMessage('wrong username or password')
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+      setUsername('')
+      setPassword('')
     }
   }
   const handleLogout = (event) => {
@@ -51,26 +57,43 @@ const App = () => {
     setPassword('')
   }
 
-  const createBlog = async () => {
+  const createBlog = async (event) => {
+    event.preventDefault()
+    if(title.length === 0 || author.length === 0 || url.length === 0){
+      setMessage('malformed input')
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+      return;
+    }
     const newBlog = {
       title,
       author,
       url
     }
-    const response = await blogService.create(newBlog)
-    setBlogs(blogs.concat(response.data))
-    setAuthor('')
-    setUrl('')
-    setTitle('')
+      const response = await blogService.create(newBlog)
+      setBlogs(blogs.concat(response.data))
+      setMessage(`a new blog ${response.data.title} by ${response.data.author} added`)
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+      setAuthor('')
+      setUrl('')
+      setTitle('')
   }
+
   if(user === null) {
     return (
-      <Form handleLogin={handleLogin} username={username} password={password} setUsername={setUsername} setPassword={setPassword}/>
+      <div>
+        <Notification message={message}/>
+        <Form handleLogin={handleLogin} username={username} password={password} setUsername={setUsername} setPassword={setPassword}/>
+      </div>
     )
   } else {
     return (
       <div>
         <h2>blogs</h2>
+        <Notification message={message}/>
         <div>
         <p style={{display:"inline-block"}}>{user.username} logged in</p>
         <button onClick={handleLogout}>logout</button>
