@@ -4,14 +4,13 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Form from './components/Form'
 import Notification from './components/Notification'
-
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl]= useState('')
+
   const [user, setUser] = useState(null)
   const [message, setMessage] = useState(null)
   useEffect(() => {
@@ -57,19 +56,13 @@ const App = () => {
     setPassword('')
   }
 
-  const createBlog = async (event) => {
-    event.preventDefault()
-    if(title.length === 0 || author.length === 0 || url.length === 0){
-      setMessage('malformed input')
+  const createBlog = async (newBlog) => {
+    if(newBlog.title.length === 0 || newBlog.author.length === 0 || newBlog.url.length === 0){
+      setMessage('enter input for all three boxes')
       setTimeout(() => {
         setMessage(null);
       }, 5000);
       return;
-    }
-    const newBlog = {
-      title,
-      author,
-      url
     }
       const response = await blogService.create(newBlog)
       setBlogs(blogs.concat(response.data))
@@ -77,9 +70,6 @@ const App = () => {
       setTimeout(() => {
         setMessage(null);
       }, 5000);
-      setAuthor('')
-      setUrl('')
-      setTitle('')
   }
 
   if(user === null) {
@@ -95,40 +85,12 @@ const App = () => {
         <h2>blogs</h2>
         <Notification message={message}/>
         <div>
-        <p style={{display:"inline-block"}}>{user.username} logged in</p>
-        <button onClick={handleLogout}>logout</button>
+          <p style={{display:"inline-block"}}>{user.username} logged in</p>
+          <button onClick={handleLogout}>logout</button>
         </div>
-        <h2>create new</h2>
-        <form onSubmit={createBlog}>
-      <div>
-        title:
-          <input
-          type="text"
-          value={title}
-          name="Title"
-          onChange={({ target }) => setTitle(target.value)}
-        />
-      </div>
-      <div>
-        author:
-          <input
-          type="text"
-          value={author}
-          name="Author"
-          onChange={({ target }) => setAuthor(target.value)}
-        />
-      </div>
-      <div>
-        url:
-          <input
-          type="url"
-          value={url}
-          name="Url"
-          onChange={({ target }) => setUrl(target.value)}
-        />
-      </div>
-      <button type="submit">create</button>
-</form>
+        <Togglable buttonLabel={'new note'}>
+        <BlogForm createBlog={createBlog}/>
+        </Togglable>
         {blogs.map(blog =>
           <Blog key={blog.id} blog={blog} />
         )}
