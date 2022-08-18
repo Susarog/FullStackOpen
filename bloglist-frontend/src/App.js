@@ -6,6 +6,7 @@ import Form from './components/Form'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
@@ -14,9 +15,10 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [message, setMessage] = useState(null)
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+    blogService.getAll().then(blogs =>{
+      console.log(blogs)
+      setBlogs (blogs)
+    })  
   }, [])
 
   useEffect(() => {
@@ -71,6 +73,11 @@ const App = () => {
         setMessage(null);
       }, 5000);
   }
+  const updateLikes = async (blogId,updatedBlog) => {
+    const response = await blogService.update(blogId ,updatedBlog)
+    console.log(response)
+    setBlogs(blogs.map(blog => blog.id !== blogId ? blog : response.data))
+  }
 
   if(user === null) {
     return (
@@ -92,7 +99,7 @@ const App = () => {
         <BlogForm createBlog={createBlog}/>
         </Togglable>
         {blogs.map(blog =>
-          <Blog key={blog.id} blog={blog} />
+          <Blog key={blog.id} blog={blog} updateLikes ={updateLikes}/>
         )}
       </div>
     )
