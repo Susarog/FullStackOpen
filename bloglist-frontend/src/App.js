@@ -16,7 +16,6 @@ const App = () => {
   const [message, setMessage] = useState(null)
   useEffect(() => {
     blogService.getAll().then(blogs =>{
-      console.log(blogs)
       setBlogs (blogs)
     })  
   }, [])
@@ -78,6 +77,11 @@ const App = () => {
     console.log(response)
     setBlogs(blogs.map(blog => blog.id !== blogId ? blog : response.data))
   }
+  const deleteBlog = async (blogId) => {
+    await blogService.deleteBlog(blogId)
+    setBlogs(blogs.filter(blog => blog.id !== blogId))
+  }
+
 
   if(user === null) {
     return (
@@ -99,7 +103,7 @@ const App = () => {
         <BlogForm createBlog={createBlog}/>
         </Togglable>
         {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
-          <Blog key={blog.id} blog={blog} updateLikes ={updateLikes}/>
+          <Blog key={blog.id} blog={blog} updateLikes ={updateLikes} deleteBlog={deleteBlog}/>
         )}
       </div>
     )
