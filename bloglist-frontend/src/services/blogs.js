@@ -20,7 +20,7 @@ const create = async (obj) => {
   }
   const response = await axios.post(baseUrl, obj, config)
   return response
-} 
+}
 
 const update = async (id,obj) => {
   const response = await axios.put(`${baseUrl}/${id}`, obj)

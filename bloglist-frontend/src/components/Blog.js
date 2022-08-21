@@ -1,15 +1,14 @@
-import { useState } from "react";
+import { useState } from 'react'
 const Blog = ({ blog, updateLikes, deleteBlog }) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
 
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
-    border: "solid",
+    border: 'solid',
     borderWidth: 1,
     marginBottom: 5,
-  };
-
+  }
   const updateVisible = () => {
     setVisible(!visible)
   }
@@ -38,7 +37,7 @@ const Blog = ({ blog, updateLikes, deleteBlog }) => {
         <div>
           {blog.url}
         </div>
-        <div>
+        <div className='like-div'>
           likes {blog.likes}
           <button onClick={addLikes}>like</button>
         </div>
@@ -47,15 +46,15 @@ const Blog = ({ blog, updateLikes, deleteBlog }) => {
         </div>
         <button onClick={removeBlog}>delete</button>
       </div>
-    );
+    )
   } else {
     return (
       <div style={blogStyle}>
         {blog.title} {blog.author}
         <button onClick={updateVisible}>view</button>
       </div>
-    );
-  }  
-};
+    )
+  }
+}
 
-export default Blog;
+export default Blog

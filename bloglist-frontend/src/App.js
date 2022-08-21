@@ -15,9 +15,9 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [message, setMessage] = useState(null)
   useEffect(() => {
-    blogService.getAll().then(blogs =>{
+    blogService.getAll().then(blogs => {
       setBlogs (blogs)
-    })  
+    })
   }, [])
 
   useEffect(() => {
@@ -31,20 +31,20 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-
     try {
-      const user = await loginService.login({username, password})
+      const user = await loginService.login({ username, password })
       window.localStorage.setItem(
         'loggedBlogUser', JSON.stringify(user.data)
-      ) 
+      )
       setUser(user.data)
+      blogService.setToken(user.data.token)
       setUsername('')
       setPassword('')
     } catch (exception) {
       setMessage('wrong username or password')
       setTimeout(() => {
-        setMessage(null);
-      }, 5000);
+        setMessage(null)
+      }, 5000)
       setUsername('')
       setPassword('')
     }
@@ -61,25 +61,31 @@ const App = () => {
     if(newBlog.title.length === 0 || newBlog.author.length === 0 || newBlog.url.length === 0){
       setMessage('enter input for all three boxes')
       setTimeout(() => {
-        setMessage(null);
-      }, 5000);
-      return;
+        setMessage(null)
+      }, 5000)
+      return
     }
-      const response = await blogService.create(newBlog)
-      setBlogs(blogs.concat(response.data))
-      setMessage(`a new blog ${response.data.title} by ${response.data.author} added`)
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
+    const response = await blogService.create(newBlog)
+    setBlogs(blogs.concat(response.data))
+    setMessage(`a new blog ${response.data.title} by ${response.data.author} added`)
+    setTimeout(() => {
+      setMessage(null)
+    }, 5000)
   }
   const updateLikes = async (blogId,updatedBlog) => {
     const response = await blogService.update(blogId ,updatedBlog)
-    console.log(response)
     setBlogs(blogs.map(blog => blog.id !== blogId ? blog : response.data))
   }
   const deleteBlog = async (blogId) => {
-    await blogService.deleteBlog(blogId)
-    setBlogs(blogs.filter(blog => blog.id !== blogId))
+    try{
+      await blogService.deleteBlog(blogId)
+      setBlogs(blogs.filter(blog => blog.id !== blogId))
+    } catch (err){
+      setMessage('cannot delete blog')
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    }
   }
 
 
@@ -96,15 +102,17 @@ const App = () => {
         <h2>blogs</h2>
         <Notification message={message}/>
         <div>
-          <p style={{display:"inline-block"}}>{user.username} logged in</p>
+          <p style={{ display:'inline-block' }}>{user.username} logged in</p>
           <button onClick={handleLogout}>logout</button>
         </div>
         <Togglable buttonLabel={'new note'}>
-        <BlogForm createBlog={createBlog}/>
+          <BlogForm createBlog={createBlog}/>
         </Togglable>
-        {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
-          <Blog key={blog.id} blog={blog} updateLikes ={updateLikes} deleteBlog={deleteBlog}/>
-        )}
+        <div className='bloglist'>
+          {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
+            <Blog key={blog.id} blog={blog} updateLikes ={updateLikes} deleteBlog={deleteBlog}/>
+          )}
+        </div>
       </div>
     )
   }
