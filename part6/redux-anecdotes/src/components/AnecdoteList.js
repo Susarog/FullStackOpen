@@ -22,7 +22,7 @@ const Anecdote = (props) => {
 }
 
 const AnecdoteList = () => {
-    const anecdotes = useSelector(state => state) 
+    const anecdotes = useSelector(state => state.anecdotes) 
     return (
         anecdotes.map(anecdote => {
             return <Anecdote key={anecdote.id} anecdote={anecdote}/>
