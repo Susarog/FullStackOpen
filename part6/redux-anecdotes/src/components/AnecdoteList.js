@@ -27,6 +27,7 @@ const AnecdoteList = () => {
     return (
         anecdotes
         .filter(anecdote => anecdote.content.includes(filter))
+        .sort((a,b) => b.votes - a.votes)
         .map(anecdote => {
             return <Anecdote key={anecdote.id} anecdote={anecdote}/>
         })
