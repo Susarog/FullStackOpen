@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -6,112 +6,109 @@ import Form from './components/Form'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
+import { useDispatch, useSelector } from 'react-redux'
+import { setBlog } from './reducers/blogsReducer'
+import { newNotification } from './reducers/notificationReducer'
+import {
+  updatePassword,
+  updateUsername,
+  login,
+  logout,
+} from './reducers/userReducer'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const dispatch = useDispatch()
+  const username = useSelector((state) => state.user.username)
+  const password = useSelector((state) => state.user.password)
+  const user = useSelector((state) => state.user.user)
 
-  const [user, setUser] = useState(null)
-  const [message, setMessage] = useState(null)
   useEffect(() => {
-    blogService.getAll().then(blogs => {
-      setBlogs (blogs)
-    })
+    blogService
+      .getAll()
+      .then((blogs) => {
+        return blogs.map((blog) => {
+          return {
+            blog,
+            visibility: false,
+          }
+        })
+      })
+      .then((updatedBlogs) => {
+        dispatch(setBlog(updatedBlogs))
+      })
   }, [])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
-    if(loggedUserJSON) {
+    if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      dispatch(login(user))
       blogService.setToken(user.token)
     }
-  },[])
+  }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    try {
-      const user = await loginService.login({ username, password })
-      window.localStorage.setItem(
-        'loggedBlogUser', JSON.stringify(user.data)
-      )
-      setUser(user.data)
-      blogService.setToken(user.data.token)
-      setUsername('')
-      setPassword('')
-    } catch (exception) {
-      setMessage('wrong username or password')
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
-      setUsername('')
-      setPassword('')
-    }
+    loginService
+      .login({ username, password })
+      .then((user) => {
+        window.localStorage.setItem('loggedBlogUser', JSON.stringify(user.data))
+        blogService.setToken(user.data.token)
+        dispatch(login(user.data))
+      })
+      .catch(() => {
+        dispatch(newNotification('wrong username or password', 5000))
+        dispatch(updateUsername(''))
+        dispatch(updatePassword(''))
+      })
   }
   const handleLogout = (event) => {
     event.preventDefault()
     window.localStorage.removeItem('loggedBlogUser')
-    setUser(null)
-    setUsername('')
-    setPassword('')
+    dispatch(logout())
   }
 
-  const createBlog = async (newBlog) => {
-    if(newBlog.title.length === 0 || newBlog.author.length === 0 || newBlog.url.length === 0){
-      setMessage('enter input for all three boxes')
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
-      return
-    }
-    const response = await blogService.create(newBlog)
-    setBlogs(blogs.concat(response.data))
-    setMessage(`a new blog ${response.data.title} by ${response.data.author} added`)
-    setTimeout(() => {
-      setMessage(null)
-    }, 5000)
-  }
-  const updateLikes = async (blogId,updatedBlog) => {
-    const response = await blogService.update(blogId ,updatedBlog)
-    setBlogs(blogs.map(blog => blog.id !== blogId ? blog : response.data))
-  }
+  /*
   const deleteBlog = async (blogId) => {
-    try{
+    try {
       await blogService.deleteBlog(blogId)
-      setBlogs(blogs.filter(blog => blog.id !== blogId))
-    } catch (err){
+      setBlogs(blogs.filter((blog) => blog.id !== blogId))
+    } catch (err) {
       setMessage('cannot delete blog')
       setTimeout(() => {
         setMessage(null)
       }, 5000)
     }
   }
-
-
-  if(user === null) {
+*/
+  const blogs = useSelector((state) => state.blogs)
+  const message = useSelector((state) => state.notification.text)
+  if (user === null) {
     return (
       <div>
-        <Notification message={message}/>
-        <Form handleLogin={handleLogin} username={username} password={password} setUsername={setUsername} setPassword={setPassword}/>
+        <Notification message={message} />
+        <Form handleLogin={handleLogin} />
       </div>
     )
   } else {
     return (
       <div>
         <h2>blogs</h2>
-        <Notification message={message}/>
+        <Notification message={message} />
         <div>
-          <p style={{ display:'inline-block' }}>{user.username} logged in</p>
+          <p style={{ display: 'inline-block' }}>{user.username} logged in</p>
           <button onClick={handleLogout}>logout</button>
         </div>
         <Togglable buttonLabel={'new note'}>
-          <BlogForm createBlog={createBlog}/>
+          <BlogForm />
         </Togglable>
         <div className='bloglist'>
-          {blogs.sort((a,b) => b.likes - a.likes).map(blog =>
-            <Blog key={blog.id} blog={blog} updateLikes ={updateLikes} deleteBlog={deleteBlog}/>
-          )}
+          {blogs
+            .slice()
+            .sort((a, b) => b.blog.likes - a.blog.likes)
+            .map((it) => (
+              <Blog key={it.blog.id} currBlog={it} />
+            ))}
         </div>
       </div>
     )
