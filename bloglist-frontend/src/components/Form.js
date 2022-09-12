@@ -1,16 +1,40 @@
+import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { useDispatch, useSelector } from 'react-redux'
-import { updatePassword, updateUsername } from '../reducers/userReducer'
-const LoginForm = ({ handleLogin }) => {
+import { useDispatch } from 'react-redux'
+import loginService from '../services/login'
+import blogService from '../services/blogs'
+import { login } from '../reducers/userReducer'
+import { newNotification } from '../reducers/notificationReducer'
+
+const LoginForm = () => {
   const dispatch = useDispatch()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    loginService
+      .login({ username, password })
+      .then((user) => {
+        window.localStorage.setItem('loggedBlogUser', JSON.stringify(user.data))
+        blogService.setToken(user.data.token)
+        dispatch(login(user.data))
+      })
+      .catch(() => {
+        dispatch(newNotification('wrong username or password', 5000))
+        setUsername('')
+        setPassword('')
+      })
+  }
+
   const handleUsername = (event) => {
-    dispatch(updateUsername(event.target.value))
+    setUsername(event.target.value)
   }
+
   const handlePassword = (event) => {
-    dispatch(updatePassword(event.target.value))
+    setPassword(event.target.value)
   }
-  const testUsername = useSelector((state) => state.user.username)
-  const testPassword = useSelector((state) => state.user.password)
+  
   return (
     <form onSubmit={handleLogin}>
       <div>
@@ -18,7 +42,7 @@ const LoginForm = ({ handleLogin }) => {
         <input
           id='username'
           type='text'
-          value={testUsername}
+          value={username}
           name='Username'
           onChange={handleUsername}
         />
@@ -28,7 +52,7 @@ const LoginForm = ({ handleLogin }) => {
         <input
           id='password'
           type='password'
-          value={testPassword}
+          value={password}
           name='Password'
           onChange={handlePassword}
         />

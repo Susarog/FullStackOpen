@@ -1,42 +1,28 @@
 import { useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
-import loginService from './services/login'
 import Form from './components/Form'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 import { useDispatch, useSelector } from 'react-redux'
 import { setBlog } from './reducers/blogsReducer'
-import { newNotification } from './reducers/notificationReducer'
 import {
-  updatePassword,
-  updateUsername,
   login,
   logout,
 } from './reducers/userReducer'
 
 const App = () => {
   const dispatch = useDispatch()
-  const username = useSelector((state) => state.user.username)
-  const password = useSelector((state) => state.user.password)
-  const user = useSelector((state) => state.user.user)
+  const user = useSelector((state) => state.user)
 
   useEffect(() => {
     blogService
       .getAll()
       .then((blogs) => {
-        return blogs.map((blog) => {
-          return {
-            blog,
-            visibility: false,
-          }
-        })
+        dispatch(setBlog(blogs.data))
       })
-      .then((updatedBlogs) => {
-        dispatch(setBlog(updatedBlogs))
-      })
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
@@ -45,23 +31,9 @@ const App = () => {
       dispatch(login(user))
       blogService.setToken(user.token)
     }
-  }, [])
+  }, [dispatch])
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    loginService
-      .login({ username, password })
-      .then((user) => {
-        window.localStorage.setItem('loggedBlogUser', JSON.stringify(user.data))
-        blogService.setToken(user.data.token)
-        dispatch(login(user.data))
-      })
-      .catch(() => {
-        dispatch(newNotification('wrong username or password', 5000))
-        dispatch(updateUsername(''))
-        dispatch(updatePassword(''))
-      })
-  }
+  
   const handleLogout = (event) => {
     event.preventDefault()
     window.localStorage.removeItem('loggedBlogUser')
@@ -87,7 +59,7 @@ const App = () => {
     return (
       <div>
         <Notification message={message} />
-        <Form handleLogin={handleLogin} />
+        <Form />
       </div>
     )
   } else {
@@ -105,9 +77,9 @@ const App = () => {
         <div className='bloglist'>
           {blogs
             .slice()
-            .sort((a, b) => b.blog.likes - a.blog.likes)
-            .map((it) => (
-              <Blog key={it.blog.id} currBlog={it} />
+            .sort((a, b) => b.likes - a.likes)
+            .map((blog) => (
+              <Blog key={blog.id} blog={blog} />
             ))}
         </div>
       </div>

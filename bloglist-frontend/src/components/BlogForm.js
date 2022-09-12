@@ -1,19 +1,21 @@
+import { useState } from 'react'
 import { createBlog } from '../reducers/blogsReducer'
 import { newNotification } from '../reducers/notificationReducer'
-import { useDispatch, useSelector } from 'react-redux'
-import {
-  setTitle,
-  setUrl,
-  setAuthor,
-  resetText,
-} from '../reducers/blogFormReducer'
+import { useDispatch } from 'react-redux'
 
 const BlogForm = () => {
   const dispatch = useDispatch()
-  const inputBlog = useSelector((state) => state.blogForm)
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl]= useState('')
+
   const addBlog = (event) => {
     event.preventDefault()
-    const newBlog = inputBlog
+    const newBlog = {
+      title,
+      author,
+      url
+    }
     if (
       newBlog.title.length === 0 ||
       newBlog.author.length === 0 ||
@@ -29,16 +31,9 @@ const BlogForm = () => {
         5000
       )
     )
-    dispatch(resetText())
-  }
-  const handleTitle = (event) => {
-    dispatch(setTitle(event.target.value))
-  }
-  const handleAuthor = (event) => {
-    dispatch(setAuthor(event.target.value))
-  }
-  const handleUrl = (event) => {
-    dispatch(setUrl(event.target.value))
+    setAuthor('')
+    setUrl('')
+    setTitle('')
   }
 
   return (
@@ -46,38 +41,36 @@ const BlogForm = () => {
       <h2>create new</h2>
       <form onSubmit={addBlog}>
         <div>
-          title:
+            title:
           <input
-            type='text'
-            value={inputBlog.title}
-            name='Title'
+            type="text"
+            value={title}
+            name="Title"
             id='title-input'
-            onChange={handleTitle}
+            onChange={({ target }) => setTitle(target.value)}
           />
         </div>
         <div>
-          author:
+            author:
           <input
-            type='text'
-            value={inputBlog.author}
-            name='Author'
+            type="text"
+            value={author}
+            name="Author"
             id='author-input'
-            onChange={handleAuthor}
+            onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
         <div>
-          url:
+            url:
           <input
-            type='url'
-            value={inputBlog.url}
-            name='Url'
+            type="url"
+            value={url}
+            name="Url"
             id='url-input'
-            onChange={handleUrl}
+            onChange={({ target }) => setUrl(target.value)}
           />
         </div>
-        <button id='submit-blog-button' type='submit'>
-          create
-        </button>
+        <button id='submit-blog-button' type="submit">create</button>
       </form>
     </div>
   )

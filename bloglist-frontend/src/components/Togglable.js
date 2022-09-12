@@ -1,17 +1,15 @@
-import { forwardRef, useImperativeHandle } from 'react'
+import { useState, forwardRef, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types'
-import { setVisible } from '../reducers/togglableReducer'
-import { useSelector, useDispatch } from 'react-redux'
+
 const Togglable = forwardRef((props, refs) => {
-  const dispatch = useDispatch()
-  const visible = useSelector((state) => state.togglableVisible)
+  const [visible, setVisible] = useState(false)
+
   const hideWhenVisible = { display: visible ? 'none' : '' }
   const showWhenVisible = { display: visible ? '' : 'none' }
 
   const toggleVisibility = () => {
-    dispatch(setVisible())
+    setVisible(!visible)
   }
-
   useImperativeHandle(refs, () => {
     return {
       toggleVisibility,
