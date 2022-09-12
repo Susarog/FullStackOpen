@@ -16,13 +16,9 @@ const Blog = ({ blog }) => {
   const updateVisible = () => {
     setVisible(!visible)
   }
- 
+
   const handleRemoveBlog = () => {
-    if (
-      window.confirm(
-        `Remove blog ${blog.title} by ${blog.author}`
-      )
-    ) {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
       dispatch(removeBlog(blog.id))
     }
   }
@@ -31,9 +27,9 @@ const Blog = ({ blog }) => {
     const newBlog = {
       user: blog.user,
       likes: blog.likes + 1,
-      author:blog.author,
+      author: blog.author,
       title: blog.title,
-      url:blog.url
+      url: blog.url,
     }
     dispatch(likeBlog(blog.id, newBlog))
   }

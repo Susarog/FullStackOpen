@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import blogService from '../services/blogs'
-import {newNotification} from './notificationReducer'
+import { newNotification } from './notificationReducer'
 
 const blogSlice = createSlice({
   name: 'blogs',
@@ -23,15 +23,12 @@ const blogSlice = createSlice({
       )
     },
     deleteBlog: (state, action) => {
-      return state.filter(
-        (currBlog) => currBlog.id !== action.payload
-      )
+      return state.filter((currBlog) => currBlog.id !== action.payload)
     },
   },
 })
 
-export const { setBlog, postBlog, updateBlog, deleteBlog } =
-  blogSlice.actions
+export const { setBlog, postBlog, updateBlog, deleteBlog } = blogSlice.actions
 export default blogSlice.reducer
 
 export const createBlog = (newBlog) => {

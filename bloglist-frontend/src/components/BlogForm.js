@@ -7,14 +7,14 @@ const BlogForm = () => {
   const dispatch = useDispatch()
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
-  const [url, setUrl]= useState('')
+  const [url, setUrl] = useState('')
 
   const addBlog = (event) => {
     event.preventDefault()
     const newBlog = {
       title,
       author,
-      url
+      url,
     }
     if (
       newBlog.title.length === 0 ||
@@ -41,36 +41,38 @@ const BlogForm = () => {
       <h2>create new</h2>
       <form onSubmit={addBlog}>
         <div>
-            title:
+          title:
           <input
-            type="text"
+            type='text'
             value={title}
-            name="Title"
+            name='Title'
             id='title-input'
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
         <div>
-            author:
+          author:
           <input
-            type="text"
+            type='text'
             value={author}
-            name="Author"
+            name='Author'
             id='author-input'
             onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
         <div>
-            url:
+          url:
           <input
-            type="url"
+            type='url'
             value={url}
-            name="Url"
+            name='Url'
             id='url-input'
             onChange={({ target }) => setUrl(target.value)}
           />
         </div>
-        <button id='submit-blog-button' type="submit">create</button>
+        <button id='submit-blog-button' type='submit'>
+          create
+        </button>
       </form>
     </div>
   )
