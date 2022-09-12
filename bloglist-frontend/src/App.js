@@ -40,19 +40,6 @@ const App = () => {
     dispatch(logout())
   }
 
-  /*
-  const deleteBlog = async (blogId) => {
-    try {
-      await blogService.deleteBlog(blogId)
-      setBlogs(blogs.filter((blog) => blog.id !== blogId))
-    } catch (err) {
-      setMessage('cannot delete blog')
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
-    }
-  }
-*/
   const blogs = useSelector((state) => state.blogs)
   const message = useSelector((state) => state.notification.text)
   if (user === null) {
