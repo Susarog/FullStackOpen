@@ -25,10 +25,23 @@ const blogSlice = createSlice({
     deleteBlog: (state, action) => {
       return state.filter((currBlog) => currBlog.id !== action.payload)
     },
+    updateComment: (state, action) => {
+      const oldBlog = state.find(
+        (currBlog) => currBlog.id === action.payload.id
+      )
+      const updatedBlog = {
+        ...oldBlog,
+        comments: oldBlog.comments.concat(action.payload.input),
+      }
+      return state.map((currBlog) =>
+        currBlog.id === updatedBlog.id ? updatedBlog : currBlog
+      )
+    },
   },
 })
 
-export const { setBlog, postBlog, updateBlog, deleteBlog } = blogSlice.actions
+export const { setBlog, postBlog, updateBlog, deleteBlog, updateComment } =
+  blogSlice.actions
 export default blogSlice.reducer
 
 export const createBlog = (newBlog) => {
@@ -55,5 +68,12 @@ export const removeBlog = (id) => {
       dispatch(newNotification('cannot delete blog', 5000))
       dispatch(deleteBlog(id))
     }
+  }
+}
+
+export const updateComments = (id, blog, input) => {
+  return async (dispatch) => {
+    await blogService.postComment(id, { blog, text: input })
+    dispatch(updateComment({ id, input }))
   }
 }
