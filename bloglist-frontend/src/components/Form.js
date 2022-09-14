@@ -4,6 +4,7 @@ import loginService from '../services/login'
 import blogService from '../services/blogs'
 import { login } from '../reducers/userReducer'
 import { newNotification } from '../reducers/notificationReducer'
+import { Form, Button } from 'react-bootstrap'
 
 const LoginForm = () => {
   const dispatch = useDispatch()
@@ -35,31 +36,29 @@ const LoginForm = () => {
   }
 
   return (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
-          id='username'
+    <Form onSubmit={handleLogin}>
+      <Form.Group className='mb-3' controlId='username'>
+        <Form.Label>Username</Form.Label>
+        <Form.Control
           type='text'
           value={username}
           name='Username'
           onChange={handleUsername}
         />
-      </div>
-      <div>
-        password
-        <input
-          id='password'
+      </Form.Group>
+      <Form.Group className='mb-3' controlId='password'>
+        <Form.Label>Password</Form.Label>
+        <Form.Control
           type='password'
           value={password}
           name='Password'
           onChange={handlePassword}
         />
-      </div>
-      <button id='login-button' type='submit'>
+      </Form.Group>
+      <Button id='login-button' type='submit'>
         login
-      </button>
-    </form>
+      </Button>
+    </Form>
   )
 }
 

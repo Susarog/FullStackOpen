@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import userService from './services/users'
-import Form from './components/Form'
+import LoginForm from './components/Form'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
@@ -11,22 +11,29 @@ import { setBlog, likeBlog, updateComments } from './reducers/blogsReducer'
 import { login, logout } from './reducers/userReducer'
 import { Routes, Route, useParams, useNavigate, Link } from 'react-router-dom'
 import { setUsers } from './reducers/usersReducer'
+import { Table, Form, Button, Nav, Navbar, Container } from 'react-bootstrap'
 
 const BlogsList = (props) => {
   return (
     <div>
-      <h2>Blogs List</h2>
       <Togglable buttonLabel={'create new'}>
         <BlogForm />
       </Togglable>
-      <div className='bloglist'>
-        {props.blogs
-          .slice()
-          .sort((a, b) => b.likes - a.likes)
-          .map((blog) => (
-            <Blog key={blog.id} blog={blog} />
-          ))}
-      </div>
+      <Table striped>
+        <tbody>
+          {props.blogs
+            .slice()
+            .sort((a, b) => b.likes - a.likes)
+            .map((blog) => (
+              <tr>
+                <td>
+                  <Blog key={blog.id} blog={blog} />
+                </td>
+                <td>{blog.author}</td>
+              </tr>
+            ))}
+        </tbody>
+      </Table>
     </div>
   )
 }
@@ -134,12 +141,37 @@ const BlogPage = ({ blogs }) => {
 const NavBar = ({ user, handleLogout }) => {
   return (
     <div>
-      <div>
-        <p style={{ display: 'inline-block' }}>{user.username} logged in</p>
-        <button onClick={handleLogout}>logout</button>
-      </div>
-      <Link to='/'>blogs</Link>
-      <Link to='/users'>users</Link>
+      <Navbar
+        style={{ position: 'sticky' }}
+        expand='lg'
+        variant='light'
+        bg='light'
+        fixed='top'
+      >
+        <Container>
+          <Navbar.Brand>Blogs List</Navbar.Brand>
+          <Nav className='me-auto' as='ul'>
+            <Nav.Item as='li'>
+              <Nav.Link>
+                <Nav.Link to='/' as={Link}>
+                  blogs
+                </Nav.Link>
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item as='li'>
+              <Nav.Link>
+                <Nav.Link to='/users' as={Link}>
+                  users
+                </Nav.Link>
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
+          <Nav>
+            <Navbar.Brand>{user.username} logged in</Navbar.Brand>
+            <Button onClick={handleLogout}>logout</Button>
+          </Nav>
+        </Container>
+      </Navbar>
     </div>
   )
 }
@@ -181,25 +213,27 @@ const App = () => {
 
   if (user === null) {
     return (
-      <div>
-        <Notification message={message} />
-        <Form />
+      <div className='container'>
+        <Notification message={message} variant='danger' />
+        <LoginForm />
       </div>
     )
   } else {
     return (
-      <div>
+      <body>
         <NavBar user={user} handleLogout={handleLogout} />
-        <h2>blogs</h2>
-        <Notification message={message} />
+        <div className='container pt-3'>
+          <h2 className='mb-3'>Blogs</h2>
+          <Notification message={message} />
 
-        <Routes>
-          <Route path='/' element={<BlogsList blogs={blogs} />} />
-          <Route path='/users' element={<Users users={users} />} />
-          <Route path='/users/:id' element={<User users={users} />} />
-          <Route path='/blogs/:id' element={<BlogPage blogs={blogs} />} />
-        </Routes>
-      </div>
+          <Routes>
+            <Route path='/' element={<BlogsList blogs={blogs} />} />
+            <Route path='/users' element={<Users users={users} />} />
+            <Route path='/users/:id' element={<User users={users} />} />
+            <Route path='/blogs/:id' element={<BlogPage blogs={blogs} />} />
+          </Routes>
+        </div>
+      </body>
     )
   }
 }
