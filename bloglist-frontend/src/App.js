@@ -11,11 +11,21 @@ import { setBlog, likeBlog, updateComments } from './reducers/blogsReducer'
 import { login, logout } from './reducers/userReducer'
 import { Routes, Route, useParams, useNavigate, Link } from 'react-router-dom'
 import { setUsers } from './reducers/usersReducer'
-import { Table, Form, Button, Nav, Navbar, Container } from 'react-bootstrap'
+import {
+  Table,
+  Form,
+  Button,
+  Nav,
+  Navbar,
+  Container,
+  ListGroup,
+} from 'react-bootstrap'
 
 const BlogsList = (props) => {
   return (
     <div>
+      <h2 className='mb-3'>Blogs</h2>
+
       <Togglable buttonLabel={'create new'}>
         <BlogForm />
       </Togglable>
@@ -42,11 +52,11 @@ const Users = ({ users }) => {
   return (
     <div>
       <h2>Users</h2>
-      <table>
+      <Table striped>
         <tbody>
           <tr>
-            <td>&nbsp;</td>
-            <td>blogs created</td>
+            <td>Users</td>
+            <td>Blogs Created</td>
           </tr>
           {users.map((user) => {
             return (
@@ -59,7 +69,7 @@ const Users = ({ users }) => {
             )
           })}
         </tbody>
-      </table>
+      </Table>
     </div>
   )
 }
@@ -72,13 +82,16 @@ const User = ({ users }) => {
   }
   return (
     <div>
-      <h2>{user.username}</h2>
-      <h3>added blogs</h3>
-      <ul>
+      <h2>{user.username}'s blogs</h2>
+      <ListGroup>
         {user.blogs.map((blog) => {
-          return <li key={blog.id}>{blog.title}</li>
+          return (
+            <ListGroup.Item key={blog.id}>
+              <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+            </ListGroup.Item>
+          )
         })}
-      </ul>
+      </ListGroup>
     </div>
   )
 }
@@ -115,64 +128,62 @@ const BlogPage = ({ blogs }) => {
       <a href={blog.url}>{blog.url}</a>
       <div>
         {blog.likes} likes
-        <button onClick={addLikes}>like</button>
+        <Button onClick={addLikes}>like</Button>
       </div>
       <div>added by {blog.author}</div>
       <h3>comments</h3>
-      <form onSubmit={commentBlog}>
-        <input
+      <Form className='d-flex' onSubmit={commentBlog}>
+        <Form.Control
           id='comment'
           type='text'
           value={input}
           name='Comment'
           onChange={handleInput}
         />
-        <button>add comment</button>
-      </form>
-      <ul>
+        <Button>submit</Button>
+      </Form>
+      <ListGroup className='mt-3'>
         {blog.comments.map((comment) => {
-          return <li key={i++}>{comment}</li>
+          return <ListGroup.Item key={i++}>{comment}</ListGroup.Item>
         })}
-      </ul>
+      </ListGroup>
     </div>
   )
 }
 
 const NavBar = ({ user, handleLogout }) => {
   return (
-    <div>
-      <Navbar
-        style={{ position: 'sticky' }}
-        expand='lg'
-        variant='light'
-        bg='light'
-        fixed='top'
-      >
-        <Container>
-          <Navbar.Brand>Blogs List</Navbar.Brand>
-          <Nav className='me-auto' as='ul'>
-            <Nav.Item as='li'>
-              <Nav.Link>
-                <Nav.Link to='/' as={Link}>
-                  blogs
-                </Nav.Link>
+    <Navbar
+      style={{ position: 'sticky' }}
+      expand='lg'
+      variant='light'
+      bg='light'
+      fixed='top'
+    >
+      <Container className='flex-nowrap'>
+        <Navbar.Brand>Blogs List</Navbar.Brand>
+        <Nav className='me-auto flex-row' as='ul'>
+          <Nav.Item as='li'>
+            <Nav.Link>
+              <Nav.Link to='/' as={Link}>
+                blogs
               </Nav.Link>
-            </Nav.Item>
-            <Nav.Item as='li'>
-              <Nav.Link>
-                <Nav.Link to='/users' as={Link}>
-                  users
-                </Nav.Link>
+            </Nav.Link>
+          </Nav.Item>
+          <Nav.Item as='li'>
+            <Nav.Link>
+              <Nav.Link to='/users' as={Link}>
+                users
               </Nav.Link>
-            </Nav.Item>
-          </Nav>
-          <Nav>
-            <Navbar.Brand>{user.username} logged in</Navbar.Brand>
-            <Button onClick={handleLogout}>logout</Button>
-          </Nav>
-        </Container>
-      </Navbar>
-    </div>
+            </Nav.Link>
+          </Nav.Item>
+        </Nav>
+        <Nav className='flex-row'>
+          <Navbar.Brand>{user.username} logged in</Navbar.Brand>
+          <Button onClick={handleLogout}>logout</Button>
+        </Nav>
+      </Container>
+    </Navbar>
   )
 }
 
@@ -210,11 +221,11 @@ const App = () => {
   const message = useSelector((state) => state.notification.text)
   const users = useSelector((state) => state.users)
   const user = useSelector((state) => state.user)
-
+  const variant = useSelector((state) => state.notification.variant)
   if (user === null) {
     return (
-      <div className='container'>
-        <Notification message={message} variant='danger' />
+      <div className='container mt-3'>
+        <Notification message={message} variant={variant} />
         <LoginForm />
       </div>
     )
@@ -223,8 +234,7 @@ const App = () => {
       <body>
         <NavBar user={user} handleLogout={handleLogout} />
         <div className='container pt-3'>
-          <h2 className='mb-3'>Blogs</h2>
-          <Notification message={message} />
+          <Notification message={message} variant={variant} />
 
           <Routes>
             <Route path='/' element={<BlogsList blogs={blogs} />} />

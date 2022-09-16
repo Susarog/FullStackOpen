@@ -21,7 +21,7 @@ const LoginForm = () => {
         dispatch(login(user.data))
       })
       .catch(() => {
-        dispatch(newNotification('wrong username or password', 5000))
+        dispatch(newNotification('wrong username or password', 5000, 'danger'))
         setUsername('')
         setPassword('')
       })

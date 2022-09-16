@@ -22,14 +22,17 @@ const BlogForm = () => {
       newBlog.author.length === 0 ||
       newBlog.url.length === 0
     ) {
-      dispatch(newNotification('enter input for all three boxes', 5000))
+      dispatch(
+        newNotification('enter input for all three boxes', 5000, 'danger')
+      )
       return
     }
     dispatch(createBlog(newBlog))
     dispatch(
       newNotification(
         `a new blog ${newBlog.title} by ${newBlog.author} added`,
-        5000
+        5000,
+        'success'
       )
     )
     setAuthor('')
