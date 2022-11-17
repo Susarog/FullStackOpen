@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useMutation } from '@apollo/client'
 import { CREATE_BOOK, ALL_AUTHORS, ALL_BOOKS } from '../queries'
 
@@ -19,7 +19,11 @@ const NewBook = (props) => {
     event.preventDefault()
     const val = parseInt(published)
     console.log('add book...')
-    createBook({ variables: { title, published: val, author, genres } })
+    try {
+      createBook({ variables: { title, published: val, author, genres } })
+    } catch (error) {
+      console.log(error)
+    }
     setTitle('')
     setPublished('')
     setAuthor('')

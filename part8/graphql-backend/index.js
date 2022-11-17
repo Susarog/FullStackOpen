@@ -81,10 +81,13 @@ const resolvers = {
       return Author.collection.countDocuments()
     },
     allBooks: async (root, args) => {
-      if (args.author && args.genre) {
+      const authorObj = await Author.findOne({ name: args.author })
+      if (!authorObj && args.author) {
+        throw new UserInputError('Author not found')
+      } else if (args.author && args.genre) {
         return Book.find(
           { genres: { $in: [args.genres] } },
-          { author: { $in: [args.author] } }
+          { author: { $in: [authorObj._id] } }
         ).populate('author', { name: 1, born: 1, id: 1 })
       } else if (args.genre) {
         return Book.find({ genres: { $in: [args.genres] } }).populate(
@@ -92,9 +95,13 @@ const resolvers = {
           { name: 1, born: 1, id: 1 }
         )
       } else if (args.author) {
-        return Book.find({ author: { $in: [args.author] } }).populate(
+        return Book.find({ author: { $in: [authorObj._id] } }).populate(
           'author',
-          { name: 1, born: 1, id: 1 }
+          {
+            name: 1,
+            born: 1,
+            id: 1,
+          }
         )
       }
       return Book.find({}).populate('author', { name: 1, born: 1, id: 1 })
@@ -105,7 +112,8 @@ const resolvers = {
   },
   Author: {
     bookCount: async (root) => {
-      return await Book.countDocuments({ $in: [root.name] })
+      const val = await Book.countDocuments({ author: { $in: [root._id] } })
+      return val
     },
   },
   Mutation: {
@@ -148,7 +156,11 @@ const resolvers = {
       return author.save()
     },
     createUser: async (root, args) => {
-      const user = new User({ username: args.username })
+      let user = await User.findOne({ username: args.username })
+      if (user) {
+        throw new UserInputError('username taken')
+      }
+      user = new User({ username: args.username })
       try {
         await user.save()
       } catch (error) {
