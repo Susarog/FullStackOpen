@@ -19,11 +19,7 @@ const NewBook = (props) => {
     event.preventDefault()
     const val = parseInt(published)
     console.log('add book...')
-    try {
-      createBook({ variables: { title, published: val, author, genres } })
-    } catch (error) {
-      console.log(error)
-    }
+    createBook({ variables: { title, published: val, author, genres } })
     setTitle('')
     setPublished('')
     setAuthor('')

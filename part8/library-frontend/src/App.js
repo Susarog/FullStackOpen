@@ -27,9 +27,9 @@ const App = () => {
   if (user.loading || books.loading || authors.loading) {
     return <div>loading...</div>
   }
-  const logout = () => {
+  const logout = async () => {
     localStorage.clear()
-    client.resetStore()
+    await client.resetStore()
     setToken(null)
     setPage('login')
   }
@@ -71,7 +71,7 @@ const App = () => {
         setGenre={setGenre}
       />
 
-      <NewBook show={page === 'add'} />
+      <NewBook show={page === 'add'} setError={notify} />
 
       <LoginForm
         setPage={setPage}
