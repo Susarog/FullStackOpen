@@ -4,16 +4,19 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
-import { ALL_AUTHORS, ALL_BOOKS } from './queries'
-import { useQuery } from '@apollo/client'
+import Recommendation from './components/Recommendations'
+import { ALL_AUTHORS, ALL_BOOKS, GET_USER } from './queries'
+import { useQuery, useApolloClient } from '@apollo/client'
 
 const App = () => {
   const [page, setPage] = useState('authors')
   const [token, setToken] = useState(null)
   const [message, setErrorMessage] = useState(null)
-  const books = useQuery(ALL_BOOKS)
+  const [genre, setGenre] = useState('')
+  const books = useQuery(ALL_BOOKS, { variables: { genre: genre } })
   const authors = useQuery(ALL_AUTHORS)
-
+  const user = useQuery(GET_USER)
+  const client = useApolloClient()
   useEffect(() => {
     const token = localStorage.getItem('user-token')
     if (token) {
@@ -21,12 +24,12 @@ const App = () => {
     }
   }, [])
 
-  if (books.loading || authors.loading) {
+  if (user.loading || books.loading || authors.loading) {
     return <div>loading...</div>
   }
-  if (books.error) return `Error! ${books.error.message}`
   const logout = () => {
     localStorage.clear()
+    client.resetStore()
     setToken(null)
     setPage('login')
   }
@@ -45,6 +48,11 @@ const App = () => {
           <button onClick={() => setPage('add')}>add book</button>
         ) : null}
         {token ? (
+          <button onClick={() => setPage('recommendation')}>
+            recommendation
+          </button>
+        ) : null}
+        {token ? (
           <button onClick={() => logout()}>logout</button>
         ) : (
           <button onClick={() => setPage('login')}>login</button>
@@ -57,15 +65,25 @@ const App = () => {
         token={token}
       />
 
-      <Books show={page === 'books'} books={books.data.allBooks} />
+      <Books
+        show={page === 'books'}
+        books={books.data.allBooks}
+        setGenre={setGenre}
+      />
 
-      <NewBook show={page === 'add'} token={token} />
+      <NewBook show={page === 'add'} />
 
       <LoginForm
         setPage={setPage}
         show={page === 'login'}
         setToken={setToken}
         setError={notify}
+      />
+
+      <Recommendation
+        show={page === 'recommendation'}
+        usersGenres={user.data.me}
+        books={books.data.allBooks}
       />
     </div>
   )

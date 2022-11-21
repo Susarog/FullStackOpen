@@ -1,4 +1,5 @@
 import React from 'react'
+
 const Books = (props) => {
   if (!props.show) {
     return null
@@ -44,8 +45,13 @@ const Books = (props) => {
       </table>
       <div>
         {filteredGenres().map((a) => (
-          <button key={a}>{a}</button>
+          <button key={a} onClick={() => props.setGenre(a)}>
+            {a}
+          </button>
         ))}
+        <button key='allGenres' onClick={() => props.setGenre('')}>
+          all genres
+        </button>
       </div>
     </div>
   )

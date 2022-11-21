@@ -86,14 +86,15 @@ const resolvers = {
         throw new UserInputError('Author not found')
       } else if (args.author && args.genre) {
         return Book.find(
-          { genres: { $in: [args.genres] } },
+          { genres: { $in: [args.genre] } },
           { author: { $in: [authorObj._id] } }
         ).populate('author', { name: 1, born: 1, id: 1 })
       } else if (args.genre) {
-        return Book.find({ genres: { $in: [args.genres] } }).populate(
-          'author',
-          { name: 1, born: 1, id: 1 }
-        )
+        return Book.find({ genres: { $in: [args.genre] } }).populate('author', {
+          name: 1,
+          born: 1,
+          id: 1,
+        })
       } else if (args.author) {
         return Book.find({ author: { $in: [authorObj._id] } }).populate(
           'author',
@@ -160,7 +161,10 @@ const resolvers = {
       if (user) {
         throw new UserInputError('username taken')
       }
-      user = new User({ username: args.username })
+      user = new User({
+        username: args.username,
+        favouriteGenre: args.favouriteGenre,
+      })
       try {
         await user.save()
       } catch (error) {
@@ -179,6 +183,7 @@ const resolvers = {
       const userForToken = {
         username: user.username,
         id: user._id,
+        favouriteGenre: user.favouriteGenre,
       }
       return { value: jwt.sign(userForToken, JWT_SECRET) }
     },

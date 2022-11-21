@@ -6,12 +6,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 3,
   },
-  favoriteGenre: [
-    {
-      type: String,
-      required: true,
-    },
-  ],
+  favouriteGenre: {
+    type: String,
+    required: true,
+  },
 })
 
 userSchema.set('toJSON', {
