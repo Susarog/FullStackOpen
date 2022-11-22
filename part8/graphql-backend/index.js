@@ -7,7 +7,6 @@ const express = require('express')
 const User = require('./models/user')
 const typeDefs = require('./schema')
 const resolvers = require('./resolvers')
-const { execute, subscribe } = require('graphql')
 const { WebSocketServer } = require('ws')
 const { useServer } = require('graphql-ws/lib/use/ws')
 
