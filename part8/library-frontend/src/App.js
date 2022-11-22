@@ -5,8 +5,23 @@ import NewBook from './components/NewBook'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import Recommendation from './components/Recommendations'
-import { ALL_AUTHORS, ALL_BOOKS, GET_USER } from './queries'
-import { useQuery, useApolloClient } from '@apollo/client'
+import { BOOK_ADDED, ALL_AUTHORS, ALL_BOOKS, GET_USER } from './queries'
+import { useQuery, useApolloClient, useSubscription } from '@apollo/client'
+
+export const updateCache = (cache, query, addedPerson) => {
+  const uniqByName = (a) => {
+    let seen = new Set()
+    return a.filter((item) => {
+      let k = item.name
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+  cache.updateQuery(query, ({ allPersons }) => {
+    return {
+      allPersons: uniqByName(allPersons.concat(addedPerson)),
+    }
+  })
+}
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -23,6 +38,15 @@ const App = () => {
       setToken(token)
     }
   }, [])
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      const addedBook = data.data.bookAdded
+      window.alert(`${addedBook.title} has been added`)
+      return {
+        allBooks: updateCache(client.cache, { query: ALL_BOOKS }, addedBook),
+      }
+    },
+  })
 
   if (user.loading || books.loading || authors.loading) {
     return <div>loading...</div>
