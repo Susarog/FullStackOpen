@@ -6,12 +6,11 @@ import MaleIcon from '@mui/icons-material/Male';
 import FemaleIcon from '@mui/icons-material/Female';
 
 const PatientPage = () => {
-  const [{ patients }] = useStateValue();
+  const [{ patients, diagnoses }] = useStateValue();
   const { id } = useParams<{ id: string }>();
   const patient: Patient = patients[id!];
-  console.log(patient);
-  if (!patient) {
-    return <div>error</div>;
+  if (!patient || Object.keys(diagnoses).length === 0) {
+    return <p>Loading...</p>;
   } else {
     return (
       <div>
@@ -21,6 +20,27 @@ const PatientPage = () => {
         </h2>
         <div>ssn: {patient.ssn}</div>
         <div>occupation: {patient.occupation}</div>
+        <h2>entries</h2>
+        {patient.entries.map((entry) => {
+          return (
+            <div key={entry.id}>
+              <div>
+                {entry.date} {entry.description}
+              </div>
+              {entry.diagnosisCodes ? (
+                <ul>
+                  {entry.diagnosisCodes.map((code) => {
+                    return (
+                      <li key={code}>
+                        {code} {diagnoses[code].name}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
     );
   }
