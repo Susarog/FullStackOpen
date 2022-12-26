@@ -1,5 +1,5 @@
 import express from 'express';
-import diagnosesRouter from './src/routes/diagnoses';
+import diagnosisRouter from './src/routes/diagnosis';
 import patientsRouter from './src/routes/patients';
 import cors from 'cors';
 
@@ -15,7 +15,7 @@ app.get('/api/ping', (_req, res) => {
   res.send('pong');
 });
 
-app.use('/api/diagnoses', diagnosesRouter);
+app.use('/api/diagnosis', diagnosisRouter);
 app.use('/api/patients', patientsRouter);
 
 app.listen(PORT, () => {
