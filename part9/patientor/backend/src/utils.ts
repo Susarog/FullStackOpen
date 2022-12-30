@@ -1,9 +1,9 @@
 import {
   NewPatient,
   Gender,
-  Entry,
+  EntryWithoutId,
+  BaseEntryWithoutId,
   HealthCheckRating,
-  BaseEntry,
   Discharge,
   SickLeave,
   Diagnosis,
@@ -73,28 +73,38 @@ const isDischarge = (discharge: any): discharge is Discharge => {
     isString(discharge.criteria)
   );
 };
+
 const parseDischarge = (discharge: unknown): Discharge => {
   if (!discharge || !isDischarge(discharge)) {
-    throw new Error();
+    throw new Error('Incorrect or missing discharge');
   }
   return discharge;
 };
+type EntryType = 'OccupationalHealthcare' | 'Hospital' | 'HealthCheck';
 
-const parseEntryType = (type: unknown): string => {
-  if (!type || !isString(type)) {
-    throw new Error();
+const isEntryType = (type: string): type is EntryType => {
+  return (
+    type === 'OccupationalHealthcare' ||
+    type === 'Hospital' ||
+    type === 'HealthCheck'
+  );
+};
+
+const parseEntryType = (type: unknown): EntryType => {
+  if (!type || !isString(type) || !isEntryType(type)) {
+    throw new Error('Incorrect or missing type');
   }
   return type;
 };
 const parseSpecialist = (specialist: unknown): string => {
   if (!specialist || !isString(specialist)) {
-    throw new Error();
+    throw new Error('Incorrect or missing specialist');
   }
   return specialist;
 };
 const parseDescription = (description: unknown): string => {
   if (!description || !isString(description)) {
-    throw new Error();
+    throw new Error('Incorrect or missing description');
   }
   return description;
 };
@@ -137,70 +147,54 @@ const parseDiagnosisCodes = (
   return code;
 };
 
-const parseNewEntry = (entries: unknown): Entry[] => {
-  if (!entries || !Array.isArray(entries)) {
-    throw new Error();
+export const toNewEntry = (entry: any): EntryWithoutId => {
+  const diagnosisCodes = parseDiagnosisCodes(entry.diagnosisCodes);
+  let baseEntry: BaseEntryWithoutId;
+  if (diagnosisCodes) {
+    baseEntry = {
+      description: parseDescription(entry.description),
+      date: parseDateOfBirth(entry.date),
+      specialist: parseSpecialist(entry.specialist),
+      diagnosisCodes: diagnosisCodes,
+    };
+  } else {
+    baseEntry = {
+      description: parseDescription(entry.description),
+      date: parseDateOfBirth(entry.date),
+      specialist: parseSpecialist(entry.specialist),
+    };
   }
-
-  return entries.map((entry): Entry => {
-    const diagnosisCodes = parseDiagnosisCodes(entry.diagnosisCodes);
-    let baseEntry: BaseEntry;
-    if (diagnosisCodes) {
-      baseEntry = {
-        id: parseName(entry.id),
-        description: parseDescription(entry.description),
-        date: parseDateOfBirth(entry.date),
-        specialist: parseSpecialist(entry.specialist),
-        diagnosisCodes: diagnosisCodes,
+  const entryType = parseEntryType(entry.type);
+  switch (entryType) {
+    case 'HealthCheck':
+      return {
+        ...baseEntry,
+        type: entryType,
+        healthCheckRating: parseHealthCheckRating(entry.healthCheckRating),
       };
-    } else {
-      baseEntry = {
-        id: parseName(entry.id),
-        description: parseDescription(entry.description),
-        date: parseDateOfBirth(entry.date),
-        specialist: parseSpecialist(entry.specialist),
+    case 'Hospital':
+      return {
+        ...baseEntry,
+        type: entryType,
+        discharge: parseDischarge(entry.discharge),
       };
-    }
-
-    const entryType = parseEntryType(entry.type);
-    switch (entryType) {
-      case 'HealthCheck':
+    case 'OccupationalHealthcare':
+      const sickLeave = parseSickLeave(entry.sickLeave);
+      if (!sickLeave) {
         return {
           ...baseEntry,
           type: entryType,
-          healthCheckRating: parseHealthCheckRating(entry.healthCheckRating),
+          employerName: parseName(entry.employerName),
         };
-        break;
-      case 'Hospital':
+      } else {
         return {
           ...baseEntry,
           type: entryType,
-          discharge: parseDischarge(entry.discharge),
+          employerName: parseName(entry.employerName),
+          sickLeave: sickLeave,
         };
-
-        break;
-      case 'OccupationalHealthcare':
-        const sickLeave = parseSickLeave(entry.sickLeave);
-        if (!sickLeave) {
-          return {
-            ...baseEntry,
-            type: entryType,
-            employerName: parseName(entry.employerName),
-          };
-        } else {
-          return {
-            ...baseEntry,
-            type: entryType,
-            employerName: parseName(entry.employerName),
-            sickLeave: sickLeave,
-          };
-        }
-        break;
-      default:
-        throw new Error();
-        break;
-    }
-  });
+      }
+  }
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toNewPatient = (object: any): NewPatient => {
@@ -210,7 +204,6 @@ const toNewPatient = (object: any): NewPatient => {
     ssn: parseSSN(object.ssn),
     gender: parseGender(object.gender),
     occupation: parseOccupation(object.occupation),
-    entries: parseNewEntry(object.entries),
   };
   return newPatient;
 };

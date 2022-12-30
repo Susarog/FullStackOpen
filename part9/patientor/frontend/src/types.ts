@@ -4,8 +4,6 @@ export interface Diagnosis {
   latin?: string;
 }
 
-export type DiagnosisName = Omit<Diagnosis, 'code'>;
-
 export enum Gender {
   Male = 'male',
   Female = 'female',
@@ -26,6 +24,12 @@ export type Entry =
   | HospitalEntry
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
+
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown
+  ? Omit<T, K>
+  : never;
+
+export type EntryWithoutId = UnionOmit<Entry, 'id'>;
 
 export interface BaseEntry {
   id: string;

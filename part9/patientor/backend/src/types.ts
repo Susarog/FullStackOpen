@@ -22,6 +22,8 @@ export interface BaseEntry {
   specialist: string;
   diagnosisCodes?: Array<Diagnosis['code']>;
 }
+
+export type BaseEntryWithoutId = Omit<BaseEntry, 'id'>;
 export enum HealthCheckRating {
   'Healthy' = 0,
   'LowRisk' = 1,
@@ -65,7 +67,7 @@ export type Patient = {
 
 export type NonSensitivePatientsData = Omit<Patient, 'ssn' | 'entries'>;
 
-export type NewPatient = Omit<Patient, 'id'>;
+export type NewPatient = Omit<Patient, 'id' | 'entries'>;
 
 type UnionOmit<T, K extends string | number | symbol> = T extends unknown
   ? Omit<T, K>

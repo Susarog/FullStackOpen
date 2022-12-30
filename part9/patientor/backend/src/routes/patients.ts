@@ -1,5 +1,6 @@
 import express from 'express';
 import patientsService from '../services/patientsService';
+import { toNewEntry } from '../utils';
 import toNewPatient from '../utils';
 
 const router = express.Router();
@@ -11,7 +12,6 @@ router.get('/', (_req, res) => {
 router.get('/:id', (req, res) => {
   const patient = patientsService.getPatient(req.params.id);
   if (patient) {
-    console.log(patient);
     res.send(patient);
   } else {
     res.status(400).send({ error: 'malformatted id' });
@@ -24,7 +24,21 @@ router.post('/', (req, res) => {
     const addedPatient = patientsService.addPatient(newPatient);
     res.json(addedPatient);
   } catch (error: unknown) {
-    res.status(400).send(error);
+    res.status(400).send({ error: (error as Error).message });
+  }
+});
+
+router.post('/:id/entries', (req, res) => {
+  const patient = patientsService.getPatient(req.params.id);
+  if (!patient) {
+    res.status(400).send({ error: 'malformatted id' });
+  }
+  try {
+    const entries = toNewEntry(req.body);
+    const addedEntries = patientsService.addEntry(req.params.id, entries);
+    res.json(addedEntries);
+  } catch (error: unknown) {
+    res.status(400).send({ error: (error as Error).message });
   }
 });
 

@@ -1,4 +1,10 @@
-import { Patient, NonSensitivePatientsData, NewPatient } from '../types';
+import {
+  Patient,
+  NonSensitivePatientsData,
+  NewPatient,
+  Entry,
+  EntryWithoutId,
+} from '../types';
 import patientEntries from '../../data/patients';
 import { v1 as uuid } from 'uuid';
 
@@ -26,9 +32,17 @@ const addPatient = (patient: NewPatient): Patient => {
   const newPatient = {
     id: uuid(),
     ...patient,
+    entries: [],
   };
   patientEntries.push(newPatient);
   return newPatient;
+};
+
+const addEntry = (id: string, entry: EntryWithoutId): Entry => {
+  const patient = getPatient(id);
+  const newEntry = { ...entry, id: uuid() };
+  patient!.entries.push(newEntry);
+  return newEntry;
 };
 
 export default {
@@ -36,4 +50,5 @@ export default {
   getEntries,
   addPatient,
   getPatient,
+  addEntry,
 };
