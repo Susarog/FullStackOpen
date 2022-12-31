@@ -7,7 +7,7 @@ import {
   TextField as TextFieldMUI,
   Typography,
 } from '@material-ui/core';
-import { Diagnosis, Gender } from '../types';
+import { Diagnosis, Gender, EntryWithoutId, HealthCheckRating } from '../types';
 import { InputLabel } from '@material-ui/core';
 import Input from '@material-ui/core/Input';
 
@@ -16,16 +16,61 @@ export type GenderOption = {
   value: Gender;
   label: string;
 };
+export type TypeOption = {
+  value: string;
+  label: string;
+};
+
+export type HealthOption = {
+  value: HealthCheckRating;
+  label: string;
+};
+type SelectEntryFieldProps = {
+  name: string;
+  label: string;
+  options: TypeOption[];
+  setValues: FormikProps<EntryWithoutId>['setValues'];
+  entryType: { [key: string]: EntryWithoutId };
+};
 
 // props for select field component
 type SelectFieldProps = {
   name: string;
   label: string;
-  options: GenderOption[];
+  options: GenderOption[] | HealthOption[];
 };
 
 const FormikSelect = ({ field, ...props }: FieldProps) => (
   <Select {...field} {...props} />
+);
+
+export const SelectEntryField = ({
+  name,
+  label,
+  options,
+  setValues,
+  entryType,
+}: SelectEntryFieldProps) => (
+  <>
+    <InputLabel>{label}</InputLabel>
+    <Field
+      fullWidth
+      style={{ marginBottom: '0.5em' }}
+      label={label}
+      component={FormikSelect}
+      name={name}
+    >
+      {options.map((option) => (
+        <MenuItem
+          key={option.value}
+          value={option.value}
+          onClick={() => setValues(entryType[option.value]!)}
+        >
+          {option.label || option.value}
+        </MenuItem>
+      ))}
+    </Field>
+  </>
 );
 
 export const SelectField = ({ name, label, options }: SelectFieldProps) => (
@@ -78,8 +123,7 @@ interface NumberProps extends FieldProps {
 }
 
 export const NumberField = ({ field, label, min, max }: NumberProps) => {
-  const [value, setValue] = useState<number>();
-
+  const [test, setValue] = useState<number>(0);
   return (
     <div style={{ marginBottom: '1em' }}>
       <TextFieldMUI
@@ -88,7 +132,7 @@ export const NumberField = ({ field, label, min, max }: NumberProps) => {
         placeholder={String(min)}
         type='number'
         {...field}
-        value={value}
+        value={test}
         onChange={(e) => {
           const value = parseInt(e.target.value);
           if (value === undefined) return;
